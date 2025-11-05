@@ -25,11 +25,34 @@
         .chat-container {
             scroll-behavior: smooth;
         }
+        /* Typing indicator animation */
+        @keyframes typing-bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        .typing-dot {
+            animation: typing-bounce 1.4s infinite;
+        }
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-    <!-- Main container: Mobile-first with max-width constraint for desktop -->
-    <div class="flex flex-col h-screen max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-lg">
+    <!-- Main container: Mobile-first, full width on desktop -->
+    <div class="flex flex-col h-screen w-full bg-white dark:bg-gray-800 shadow-lg">
         
         <!-- Header: Fixed at top with gradient background -->
         <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-4 sm:px-6 sm:py-5 shadow-md">
@@ -212,6 +235,50 @@
             fileInput.value = '';
         });
 
+        // Show typing indicator
+        function showTypingIndicator() {
+            const messageDiv = document.createElement('div');
+            messageDiv.id = 'typing-indicator';
+            messageDiv.className = 'flex items-start space-x-3';
+            
+            const messageBubble = document.createElement('div');
+            messageBubble.className = 'flex-1';
+            
+            const bubbleContent = document.createElement('div');
+            bubbleContent.className = 'bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-sm px-4 py-3 sm:px-5 sm:py-4 shadow-sm max-w-[85%] sm:max-w-md';
+            
+            const typingContainer = document.createElement('div');
+            typingContainer.className = 'flex items-center space-x-1.5';
+            
+            // Create three animated dots
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'typing-dot w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full';
+                typingContainer.appendChild(dot);
+            }
+            
+            bubbleContent.appendChild(typingContainer);
+            messageBubble.appendChild(bubbleContent);
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base';
+            avatar.textContent = 'AI';
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageBubble);
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
         // Send message handler
         function sendMessage() {
             const message = messageInput.value.trim();
@@ -221,7 +288,8 @@
 
             // Add user message
             if (message || uploadedImages.length > 0) {
-                addMessage(message, 'user', uploadedImages.map(img => img.dataUrl));
+                const userImages = uploadedImages.map(img => img.dataUrl);
+                addMessage(message, 'user', userImages);
                 
                 // Clear input and reset textarea
                 messageInput.value = '';
@@ -230,10 +298,14 @@
                 updateImagePreview();
                 fileInput.value = '';
                 
-                // Simulate AI response after a short delay
+                // Show typing indicator immediately
+                showTypingIndicator();
+                
+                // Simulate AI response after a delay
                 setTimeout(() => {
-                    addMessage("I received your message" + (message ? `: "${message}"` : '') + (uploadedImages.length > 0 ? ' with images' : '') + ". How can I assist you further?", 'ai');
-                }, 1000);
+                    removeTypingIndicator();
+                    addMessage("I received your message" + (message ? `: "${message}"` : '') + (userImages.length > 0 ? ' with images' : '') + ". How can I assist you further?", 'ai');
+                }, 1500);
             }
             
             // Scroll to bottom
