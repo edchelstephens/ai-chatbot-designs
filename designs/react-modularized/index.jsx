@@ -1,24 +1,26 @@
 // React is loaded via CDN, so it's available globally
 const { createRoot } = ReactDOM;
 
-// Import App component (will be loaded from App.jsx)
+// Load all component files in order, then App.jsx
 // This file serves as the entry point for the React application
 
 // Initialize and render the App component when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Fetch and load App.jsx
-    fetch('App.jsx')
-        .then(response => response.text())
-        .then(jsxCode => {
-            // Transform JSX to JavaScript using Babel
-            const transformedCode = Babel.transform(jsxCode, {
-                presets: ['react']
-            }).code;
+    // Define component files to load in order
+    const componentFiles = [
+        'components/ChatHeader.jsx',
+        'components/MessageBubble.jsx',
+        'components/LoadingIndicator.jsx',
+        'components/ChatMessages.jsx',
+        'components/ImagePreview.jsx',
+        'components/ChatInput.jsx',
+        'App.jsx'
+    ];
 
-            // Execute the transformed code to define App component
-            eval(transformedCode);
-
-            // Render the App component
+    // Load all files sequentially
+    const loadFile = (index) => {
+        if (index >= componentFiles.length) {
+            // All files loaded, render the App component
             const rootElement = document.getElementById('root');
             if (rootElement) {
                 const root = createRoot(rootElement);
@@ -26,12 +28,33 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 console.error('Root element not found');
             }
-        })
-        .catch(error => {
-            console.error('Error loading App.jsx:', error);
-            const rootElement = document.getElementById('root');
-            if (rootElement) {
-                rootElement.innerHTML = '<div class="p-4 text-red-500">Error loading application. Please check the console.</div>';
-            }
-        });
+            return;
+        }
+
+        const file = componentFiles[index];
+        fetch(file)
+            .then(response => response.text())
+            .then(jsxCode => {
+                // Transform JSX to JavaScript using Babel
+                const transformedCode = Babel.transform(jsxCode, {
+                    presets: ['react']
+                }).code;
+
+                // Execute the transformed code
+                eval(transformedCode);
+
+                // Load next file
+                loadFile(index + 1);
+            })
+            .catch(error => {
+                console.error(`Error loading ${file}:`, error);
+                const rootElement = document.getElementById('root');
+                if (rootElement) {
+                    rootElement.innerHTML = `<div class="p-4 text-red-500">Error loading ${file}. Please check the console.</div>`;
+                }
+            });
+    };
+
+    // Start loading from the first file
+    loadFile(0);
 });
