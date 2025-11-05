@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot Interface - Bootstrap 5</title>
+    
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        /* ============================================
+           Custom Styles (minimal, using Bootstrap variables)
+           ============================================ */
+        
+        /* Full viewport height layout */
+        body {
+            height: 100vh;
+            overflow: hidden;
+            /* Use Bootstrap's body-bg for theme support */
+            background-color: var(--bs-body-bg);
+        }
+
+        /* Chat container uses flexbox for full height layout */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            /* Mobile-first: full width, no constraints */
+        }
+
+        /* Header with Bootstrap utilities */
+        .chat-header {
+            flex-shrink: 0;
+            /* Prevents header from shrinking */
+            border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+        }
+
+        /* Messages container: flex-1 to fill available space, scrollable */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            /* Smooth scrolling for better UX */
+            scroll-behavior: smooth;
+            /* Mobile-first padding: smaller on mobile, larger on desktop */
+            padding: 1rem;
+        }
+
+        /* Message bubbles: user on right, AI on left */
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* User messages: justify-end aligns to right */
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        /* AI messages: justify-start aligns to left */
+        .message.ai {
+            justify-content: flex-start;
+        }
+
+        /* Message content card styling */
+        .message-content {
+            /* Mobile-first: max-width 85% for readability */
+            max-width: 85%;
+            /* Tablet and desktop: handled via responsive utilities */
+        }
+
+        /* User message: green background using Bootstrap success color */
+        .message.user .message-content {
+            background-color: var(--bs-success);
+            color: var(--bs-white);
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        /* AI message: gray background using Bootstrap secondary color */
+        .message.ai .message-content {
+            background-color: var(--bs-secondary-bg);
+            color: var(--bs-body-color);
+            border-radius: 18px 18px 18px 4px;
+        }
+
+        /* Image preview in messages */
+        .message-image {
+            margin-top: 0.5rem;
+            border-radius: var(--bs-border-radius);
+            overflow: hidden;
+        }
+
+        .message-image img {
+            width: 100%;
+            height: auto;
+            max-width: 300px;
+            /* Mobile: constrained image size */
+            display: block;
+            border-radius: var(--bs-border-radius);
+        }
+
+        /* Input container: fixed at bottom, flex-shrink: 0 */
+        .input-container {
+            flex-shrink: 0;
+            border-top: var(--bs-border-width) solid var(--bs-border-color);
+            background-color: var(--bs-body-bg);
+            /* Mobile-first padding */
+            padding: 0.75rem;
+        }
+
+        /* Image preview container above input */
+        .image-preview-container {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+            min-height: 60px;
+            padding: 0.5rem;
+            background-color: var(--bs-secondary-bg);
+            border-radius: var(--bs-border-radius);
+        }
+
+        .image-preview-container:empty {
+            display: none;
+        }
+
+        .image-preview {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: var(--bs-border-radius);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-remove {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        /* Textarea auto-resize */
+        .message-input {
+            resize: none;
+            min-height: 44px;
+            /* Minimum touch target for mobile */
+            max-height: 200px;
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--bs-secondary);
+            text-align: center;
+        }
+
+        .empty-state.hidden {
+            display: none;
+        }
+
+        /* ============================================
+           Responsive Adjustments via Media Queries
+           ============================================ */
+        
+        /* Tablet: 768px and up */
+        @media (min-width: 768px) {
+            /* Center container with max-width */
+            .chat-container {
+                margin: 0 auto;
+                max-width: 768px;
+            }
+
+            /* Slightly wider messages on tablet */
+            .message-content {
+                max-width: 75%;
+            }
+
+            /* More padding on tablet */
+            .messages-container {
+                padding: 1.5rem;
+            }
+
+            .input-container {
+                padding: 1rem;
+            }
+
+            /* Larger images on tablet */
+            .message-image img {
+                max-width: 400px;
+            }
+        }
+
+        /* Desktop: 992px and up */
+        @media (min-width: 992px) {
+            /* Wider container on desktop */
+            .chat-container {
+                max-width: 1024px;
+            }
+
+            /* Even wider messages on desktop */
+            .message-content {
+                max-width: 70%;
+            }
+
+            /* More generous padding on desktop */
+            .messages-container {
+                padding: 2rem;
+            }
+
+            .input-container {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .chat-header {
+                padding: 1.25rem 1.5rem !important;
+            }
+
+            /* Larger images on desktop */
+            .message-image img {
+                max-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body data-bs-theme="light">
+    <!-- 
+        Chat Container
+        Mobile-first: Full width, no max-width constraint
+        Tablet/Desktop: Centered with max-width via media queries
+    -->
+    <div class="chat-container">
+        <!-- 
+            Header Section
+            Uses Bootstrap's navbar utilities for consistent styling
+            Mobile-first: Smaller padding, responsive on larger screens
+        -->
+        <header class="chat-header bg-body border-bottom">
+            <div class="container-fluid px-3 py-2">
+                <div class="d-flex align-items-center">
+                    <h1 class="h5 mb-0 fw-semibold">AI Assistant</h1>
+                </div>
+            </div>
+        </header>
+
+        <!-- 
+            Messages Container
+            Scrollable area using flex: 1 to fill available space
+            Mobile-first: 1rem padding, increases on larger screens
+        -->
+        <div class="messages-container" id="messagesContainer">
+            <!-- Empty state shown when no messages -->
+            <div class="empty-state" id="emptyState">
+                <p class="text-muted">Start a conversation by typing a message below.</p>
+            </div>
+        </div>
+
+        <!-- 
+            Input Container
+            Fixed at bottom using flex-shrink: 0
+            Mobile-first: Smaller padding, responsive on larger screens
+        -->
+        <div class="input-container">
+            <div class="container-fluid px-0">
+                <!-- 
+                    Image Preview Container
+                    Shows uploaded images before sending
+                    Hidden when empty using :empty pseudo-selector
+                -->
+                <div class="image-preview-container" id="imagePreviewContainer"></div>
+
+                <!-- 
+                    Input Row
+                    Uses Bootstrap's input-group for proper button alignment
+                    Mobile-first: Stacked layout, responsive on larger screens
+                -->
+                <div class="input-group input-group-lg">
+                    <!-- Text Input -->
+                    <textarea
+                        class="form-control message-input"
+                        id="messageInput"
+                        placeholder="Type a message..."
+                        rows="1"
+                        aria-label="Message input"
+                    ></textarea>
+                    
+                    <!-- 
+                        Upload Image Button
+                        Uses Bootstrap's btn-outline-secondary for consistent styling
+                    -->
+                    <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        id="uploadBtn"
+                        aria-label="Upload image"
+                    >
+                        <i class="bi bi-image"></i>
+                    </button>
+                    
+                    <!-- 
+                        Send Button
+                        Uses Bootstrap's btn-success for primary action
+                    -->
+                    <button
+                        class="btn btn-success"
+                        type="button"
+                        id="sendBtn"
+                        aria-label="Send message"
+                    >
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+
+                <!-- Hidden File Input -->
+                <input
+                    type="file"
+                    class="d-none"
+                    id="fileInput"
+                    accept=".jpg,.jpeg,.png"
+                    multiple
+                >
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ============================================
+        // DOM Elements
+        // ============================================
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const emptyState = document.getElementById('emptyState');
+
+        // Array to store uploaded images before sending
+        let uploadedImages = [];
+
+        // ============================================
+        // Auto-resize Textarea
+        // ============================================
+        // Automatically adjust textarea height based on content
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+
+        // ============================================
+        // Add Message Function
+        // ============================================
+        function addMessage(text, isUser, images = []) {
+            // Hide empty state when first message is added
+            if (emptyState && !emptyState.classList.contains('hidden')) {
+                emptyState.classList.add('hidden');
+            }
+
+            // Create message element
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+
+            // Create message content using Bootstrap card
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content card border-0 shadow-sm';
+            messageContent.style.padding = '0.75rem 1rem';
+
+            // Add text content
+            if (text.trim()) {
+                const textDiv = document.createElement('div');
+                textDiv.className = 'mb-2';
+                textDiv.style.whiteSpace = 'pre-wrap';
+                textDiv.style.wordWrap = 'break-word';
+                textDiv.textContent = text;
+                messageContent.appendChild(textDiv);
+            }
+
+            // Add images if any
+            images.forEach(imageData => {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'message-image';
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.alt = 'Uploaded image';
+                img.className = 'img-fluid';
+                imageDiv.appendChild(img);
+                messageContent.appendChild(imageDiv);
+            });
+
+            messageDiv.appendChild(messageContent);
+            messagesContainer.appendChild(messageDiv);
+
+            // Smooth scroll to bottom
+            scrollToBottom();
+        }
+
+        // ============================================
+        // Scroll to Bottom Function
+        // ============================================
+        function scrollToBottom() {
+            messagesContainer.scrollTo({
+                top: messagesContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        // ============================================
+        // Send Message Function
+        // ============================================
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            const images = [...uploadedImages];
+
+            // Only send if there's text or images
+            if (text || images.length > 0) {
+                // Add user message
+                addMessage(text, true, images);
+
+                // Clear input and reset images
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                uploadedImages = [];
+                updateImagePreview();
+                updateSendButtonState();
+
+                // Simulate AI response (replace with actual API call)
+                setTimeout(() => {
+                    const aiResponse = text 
+                        ? `I received your message: "${text}"${images.length > 0 ? ` and ${images.length} image(s)` : ''}.`
+                        : `I see you've uploaded ${images.length} image(s).`;
+                    addMessage(aiResponse, false);
+                }, 500);
+            }
+        }
+
+        // ============================================
+        // Image Upload Handling
+        // ============================================
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            
+            files.forEach(file => {
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please select a .jpg, .jpeg, or .png image file.');
+                    return;
+                }
+
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image size must be less than 5MB.');
+                    return;
+                }
+
+                // Read file as data URL for preview
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    uploadedImages.push(event.target.result);
+                    updateImagePreview();
+                    updateSendButtonState();
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Reset file input to allow selecting same file again
+            fileInput.value = '';
+        });
+
+        // ============================================
+        // Update Image Preview
+        // ============================================
+        function updateImagePreview() {
+            imagePreviewContainer.innerHTML = '';
+
+            uploadedImages.forEach((imageData, index) => {
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'image-preview';
+                
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.alt = 'Preview';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'image-preview-remove btn btn-danger btn-sm p-0 d-flex align-items-center justify-content-center';
+                removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+                removeBtn.setAttribute('aria-label', 'Remove image');
+                removeBtn.onclick = () => {
+                    uploadedImages.splice(index, 1);
+                    updateImagePreview();
+                    updateSendButtonState();
+                };
+
+                previewDiv.appendChild(img);
+                previewDiv.appendChild(removeBtn);
+                imagePreviewContainer.appendChild(previewDiv);
+            });
+        }
+
+        // ============================================
+        // Update Send Button State
+        // ============================================
+        function updateSendButtonState() {
+            const hasContent = messageInput.value.trim().length > 0 || uploadedImages.length > 0;
+            sendBtn.disabled = !hasContent;
+        }
+
+        // ============================================
+        // Send Button Click Handler
+        // ============================================
+        sendBtn.addEventListener('click', sendMessage);
+
+        // ============================================
+        // Enter Key Handler (Shift+Enter for new line)
+        // ============================================
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // ============================================
+        // Input Change Handler
+        // ============================================
+        messageInput.addEventListener('input', updateSendButtonState);
+
+        // Initialize send button state
+        updateSendButtonState();
+    </script>
+</body>
+</html>
+

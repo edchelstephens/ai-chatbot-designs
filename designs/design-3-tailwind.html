@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - Tailwind CSS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar styling for better UX */
+        .chat-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        .chat-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Smooth scrolling for chat area */
+        .chat-container {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <!-- Main container: Mobile-first with max-width constraint for desktop -->
+    <div class="flex flex-col h-screen max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-lg">
+        
+        <!-- Header: Fixed at top with gradient background -->
+        <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-4 sm:px-6 sm:py-5 shadow-md">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-bold">AI Assistant</h1>
+                        <p class="text-xs sm:text-sm text-white/80">Always here to help</p>
+                    </div>
+                </div>
+                <!-- Dark mode toggle button -->
+                <button id="darkModeToggle" class="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
+                    <svg id="sunIcon" class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <svg id="moonIcon" class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Chat messages area: Scrollable container with padding -->
+        <div id="chatContainer" class="flex-1 overflow-y-auto chat-container chat-scrollbar px-4 py-6 sm:px-6 space-y-4">
+            <!-- Welcome message -->
+            <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base">
+                    AI
+                </div>
+                <div class="flex-1">
+                    <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-sm px-4 py-3 sm:px-5 sm:py-4 shadow-sm max-w-[85%] sm:max-w-md">
+                        <p class="text-sm sm:text-base text-gray-800 dark:text-gray-200">
+                            Hello! I'm your AI assistant. How can I help you today?
+                        </p>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-2">Just now</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image preview area (hidden by default) -->
+        <div id="imagePreview" class="hidden px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <div class="flex items-center space-x-2">
+                <span class="text-xs text-gray-600 dark:text-gray-400">Preview:</span>
+                <div id="previewImages" class="flex space-x-2 flex-1 overflow-x-auto"></div>
+                <button id="clearPreview" class="text-xs text-red-500 hover:text-red-600 dark:hover:text-red-400 font-medium px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-red-500">
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Input area: Fixed at bottom with safe area for mobile -->
+        <div class="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pb-safe">
+            <div class="px-4 py-3 sm:px-6 sm:py-4">
+                <div class="flex items-end space-x-2 sm:space-x-3">
+                    <!-- Upload Image button -->
+                    <button id="uploadBtn" class="flex-shrink-0 p-2.5 sm:p-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" aria-label="Upload image">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Hidden file input -->
+                    <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
+                    
+                    <!-- Message input: Flexible textarea with auto-resize -->
+                    <div class="flex-1 relative">
+                        <textarea 
+                            id="messageInput" 
+                            rows="1" 
+                            placeholder="Type your message..."
+                            class="w-full px-4 py-2.5 sm:px-5 sm:py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all"
+                            style="max-height: 120px; overflow-y: auto;"
+                        ></textarea>
+                    </div>
+                    
+                    <!-- Send button: Circular with gradient background -->
+                    <button id="sendBtn" class="flex-shrink-0 p-2.5 sm:p-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-md hover:shadow-lg active:scale-95" aria-label="Send message">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let uploadedImages = [];
+        
+        // DOM elements
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImages = document.getElementById('previewImages');
+        const clearPreview = document.getElementById('clearPreview');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Dark mode toggle
+        const isDarkMode = localStorage.getItem('darkMode') === 'true' || 
+                          (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        
+        if (isDarkMode) {
+            document.documentElement.classList.add('dark');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        });
+
+        // File upload handler
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        uploadedImages.push({
+                            file: file,
+                            dataUrl: event.target.result
+                        });
+                        updateImagePreview();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        // Update image preview display
+        function updateImagePreview() {
+            if (uploadedImages.length > 0) {
+                imagePreview.classList.remove('hidden');
+                previewImages.innerHTML = '';
+                
+                uploadedImages.forEach((img, index) => {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'relative flex-shrink-0';
+                    imgContainer.innerHTML = `
+                        <img src="${img.dataUrl}" alt="Preview" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border-2 border-gray-300 dark:border-gray-600">
+                        <button onclick="removeImage(${index})" class="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs focus:outline-none focus:ring-2 focus:ring-red-500">
+                            ×
+                        </button>
+                    `;
+                    previewImages.appendChild(imgContainer);
+                });
+            } else {
+                imagePreview.classList.add('hidden');
+            }
+        }
+
+        // Remove image from preview
+        window.removeImage = function(index) {
+            uploadedImages.splice(index, 1);
+            updateImagePreview();
+        };
+
+        clearPreview.addEventListener('click', () => {
+            uploadedImages = [];
+            updateImagePreview();
+            fileInput.value = '';
+        });
+
+        // Send message handler
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            
+            // Don't send if message is empty and no images
+            if (!message && uploadedImages.length === 0) return;
+
+            // Add user message
+            if (message || uploadedImages.length > 0) {
+                addMessage(message, 'user', uploadedImages.map(img => img.dataUrl));
+                
+                // Clear input and reset textarea
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                uploadedImages = [];
+                updateImagePreview();
+                fileInput.value = '';
+                
+                // Simulate AI response after a short delay
+                setTimeout(() => {
+                    addMessage("I received your message" + (message ? `: "${message}"` : '') + (uploadedImages.length > 0 ? ' with images' : '') + ". How can I assist you further?", 'ai');
+                }, 1000);
+            }
+            
+            // Scroll to bottom
+            scrollToBottom();
+        }
+
+        // Add message to chat
+        function addMessage(text, sender, images = []) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex items-start space-x-3 ${sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`;
+            
+            const avatar = sender === 'user' 
+                ? '<div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base">You</div>'
+                : '<div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base">AI</div>';
+            
+            const messageBubble = document.createElement('div');
+            messageBubble.className = `flex-1 ${sender === 'user' ? 'flex flex-col items-end' : ''}`;
+            
+            const bubbleContent = document.createElement('div');
+            bubbleContent.className = `${sender === 'user' 
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl rounded-tr-sm' 
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-sm'} px-4 py-3 sm:px-5 sm:py-4 shadow-sm max-w-[85%] sm:max-w-md`;
+            
+            // Add text if present
+            if (text) {
+                const textP = document.createElement('p');
+                textP.className = 'text-sm sm:text-base whitespace-pre-wrap break-words';
+                textP.textContent = text;
+                bubbleContent.appendChild(textP);
+            }
+            
+            // Add images if present
+            if (images && images.length > 0) {
+                const imagesContainer = document.createElement('div');
+                imagesContainer.className = `mt-2 flex flex-wrap gap-2 ${sender === 'user' ? 'justify-end' : ''}`;
+                
+                images.forEach(imgSrc => {
+                    const imgWrapper = document.createElement('div');
+                    imgWrapper.className = 'relative';
+                    const img = document.createElement('img');
+                    img.src = imgSrc;
+                    img.className = 'max-w-[150px] sm:max-w-[200px] h-auto rounded-lg border-2 border-white/20';
+                    img.alt = 'Uploaded image';
+                    imgWrapper.appendChild(img);
+                    imagesContainer.appendChild(imgWrapper);
+                });
+                
+                bubbleContent.appendChild(imagesContainer);
+            }
+            
+            const timestamp = document.createElement('p');
+            timestamp.className = `text-xs text-gray-500 dark:text-gray-400 mt-1 ${sender === 'user' ? 'mr-2' : 'ml-2'}`;
+            timestamp.textContent = 'Just now';
+            
+            messageBubble.appendChild(bubbleContent);
+            messageBubble.appendChild(timestamp);
+            
+            messageDiv.innerHTML = avatar;
+            messageDiv.appendChild(messageBubble);
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Scroll to bottom smoothly
+        function scrollToBottom() {
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Initialize scroll position
+        scrollToBottom();
+    </script>
+</body>
+</html>
+
