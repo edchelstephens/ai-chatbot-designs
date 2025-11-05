@@ -48,6 +48,18 @@
         .typing-dot:nth-child(3) {
             animation-delay: 0.4s;
         }
+        /* Spinner animation */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -136,7 +148,7 @@
                     
                     <!-- Send button: Circular with gradient background -->
                     <button id="sendBtn" class="flex-shrink-0 pt-2.5 pb-2.5 px-2.5 sm:pt-3 sm:pb-3 sm:px-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-md hover:shadow-lg active:scale-95" aria-label="Send message">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="sendIcon" class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                         </svg>
                     </button>
@@ -235,6 +247,26 @@
             fileInput.value = '';
         });
 
+        // Disable inputs during AI response
+        function disableInputs() {
+            messageInput.disabled = true;
+            uploadBtn.disabled = true;
+            sendBtn.disabled = true;
+            messageInput.classList.add('opacity-50', 'cursor-not-allowed');
+            uploadBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        // Enable inputs after AI response
+        function enableInputs() {
+            messageInput.disabled = false;
+            uploadBtn.disabled = false;
+            sendBtn.disabled = false;
+            messageInput.classList.remove('opacity-50', 'cursor-not-allowed');
+            uploadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
         // Show typing indicator
         function showTypingIndicator() {
             const messageDiv = document.createElement('div');
@@ -269,6 +301,9 @@
             
             chatContainer.appendChild(messageDiv);
             scrollToBottom();
+            
+            // Disable inputs while waiting for response
+            disableInputs();
         }
 
         // Remove typing indicator
@@ -276,6 +311,27 @@
             const indicator = document.getElementById('typing-indicator');
             if (indicator) {
                 indicator.remove();
+            }
+            
+            // Re-enable inputs after response
+            enableInputs();
+        }
+
+        // Show spinner in send button
+        function showSpinner() {
+            const sendIcon = document.getElementById('sendIcon');
+            if (sendIcon) {
+                sendIcon.innerHTML = '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="60" stroke-dashoffset="45"></circle>';
+                sendIcon.classList.add('spinner');
+            }
+        }
+
+        // Hide spinner and restore send icon
+        function hideSpinner() {
+            const sendIcon = document.getElementById('sendIcon');
+            if (sendIcon) {
+                sendIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>';
+                sendIcon.classList.remove('spinner');
             }
         }
 
@@ -298,14 +354,14 @@
                 updateImagePreview();
                 fileInput.value = '';
                 
-                // Show typing indicator immediately
-                showTypingIndicator();
+                // Show spinner
+                showSpinner();
                 
                 // Simulate AI response after a delay
                 setTimeout(() => {
-                    removeTypingIndicator();
+                    hideSpinner();
                     addMessage("I received your message" + (message ? `: "${message}"` : '') + (userImages.length > 0 ? ' with images' : '') + ". How can I assist you further?", 'ai');
-                }, 1500);
+                }, 2000);
             }
             
             // Scroll to bottom
