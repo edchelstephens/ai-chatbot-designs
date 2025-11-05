@@ -105,7 +105,6 @@
                             Hello! I'm your AI assistant. How can I help you today?
                         </p>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-2">Just now</p>
                 </div>
             </div>
         </div>
@@ -194,7 +193,10 @@
         });
 
         // File upload handler
-        uploadBtn.addEventListener('click', () => fileInput.click());
+        uploadBtn.addEventListener('click', () => {
+            if (uploadBtn.disabled) return;
+            fileInput.click();
+        });
         
         fileInput.addEventListener('change', (e) => {
             const files = Array.from(e.target.files);
@@ -324,6 +326,8 @@
                 sendIcon.innerHTML = '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="60" stroke-dashoffset="45"></circle>';
                 sendIcon.classList.add('spinner');
             }
+            // Disable inputs while waiting for response
+            disableInputs();
         }
 
         // Hide spinner and restore send icon
@@ -333,10 +337,15 @@
                 sendIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>';
                 sendIcon.classList.remove('spinner');
             }
+            // Re-enable inputs after response
+            enableInputs();
         }
 
         // Send message handler
         function sendMessage() {
+            // Don't send if inputs are disabled (waiting for AI response)
+            if (messageInput.disabled) return;
+            
             const message = messageInput.value.trim();
             
             // Don't send if message is empty and no images
@@ -410,12 +419,7 @@
                 bubbleContent.appendChild(imagesContainer);
             }
             
-            const timestamp = document.createElement('p');
-            timestamp.className = `text-xs text-gray-500 dark:text-gray-400 mt-1 ${sender === 'user' ? 'mr-2' : 'ml-2'}`;
-            timestamp.textContent = 'Just now';
-            
             messageBubble.appendChild(bubbleContent);
-            messageBubble.appendChild(timestamp);
             
             // Only add avatar for AI messages
             if (sender === 'ai') {

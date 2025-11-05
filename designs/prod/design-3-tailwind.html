@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot - Tailwind CSS</title>
+    <title>Sherlock AI</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -25,6 +25,41 @@
         .chat-container {
             scroll-behavior: smooth;
         }
+        /* Typing indicator animation */
+        @keyframes typing-bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        .typing-dot {
+            animation: typing-bounce 1.4s infinite;
+        }
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        /* Spinner animation */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -41,8 +76,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-lg sm:text-xl font-bold">AI Assistant</h1>
-                        <p class="text-xs sm:text-sm text-white/80">Always here to help</p>
+                        <h1 class="text-lg sm:text-xl font-bold">Sherlock AI</h1>
+                        <p class="text-xs sm:text-sm text-white/80">Ask anything</p>
                     </div>
                 </div>
                 <!-- Dark mode toggle button -->
@@ -70,7 +105,6 @@
                             Hello! I'm your AI assistant. How can I help you today?
                         </p>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-2">Just now</p>
                 </div>
             </div>
         </div>
@@ -113,7 +147,7 @@
                     
                     <!-- Send button: Circular with gradient background -->
                     <button id="sendBtn" class="flex-shrink-0 pt-2.5 pb-2.5 px-2.5 sm:pt-3 sm:pb-3 sm:px-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-md hover:shadow-lg active:scale-95" aria-label="Send message">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="sendIcon" class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                         </svg>
                     </button>
@@ -159,7 +193,10 @@
         });
 
         // File upload handler
-        uploadBtn.addEventListener('click', () => fileInput.click());
+        uploadBtn.addEventListener('click', () => {
+            if (uploadBtn.disabled) return;
+            fileInput.click();
+        });
         
         fileInput.addEventListener('change', (e) => {
             const files = Array.from(e.target.files);
@@ -212,8 +249,103 @@
             fileInput.value = '';
         });
 
+        // Disable inputs during AI response
+        function disableInputs() {
+            messageInput.disabled = true;
+            uploadBtn.disabled = true;
+            sendBtn.disabled = true;
+            messageInput.classList.add('opacity-50', 'cursor-not-allowed');
+            uploadBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        // Enable inputs after AI response
+        function enableInputs() {
+            messageInput.disabled = false;
+            uploadBtn.disabled = false;
+            sendBtn.disabled = false;
+            messageInput.classList.remove('opacity-50', 'cursor-not-allowed');
+            uploadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const messageDiv = document.createElement('div');
+            messageDiv.id = 'typing-indicator';
+            messageDiv.className = 'flex items-start space-x-3';
+            
+            const messageBubble = document.createElement('div');
+            messageBubble.className = 'flex-1';
+            
+            const bubbleContent = document.createElement('div');
+            bubbleContent.className = 'bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-sm px-4 py-3 sm:px-5 sm:py-4 shadow-sm max-w-[85%] sm:max-w-md';
+            
+            const typingContainer = document.createElement('div');
+            typingContainer.className = 'flex items-center space-x-1.5';
+            
+            // Create three animated dots
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'typing-dot w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full';
+                typingContainer.appendChild(dot);
+            }
+            
+            bubbleContent.appendChild(typingContainer);
+            messageBubble.appendChild(bubbleContent);
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base';
+            avatar.textContent = 'AI';
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageBubble);
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+            
+            // Disable inputs while waiting for response
+            disableInputs();
+        }
+
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+            
+            // Re-enable inputs after response
+            enableInputs();
+        }
+
+        // Show spinner in send button
+        function showSpinner() {
+            const sendIcon = document.getElementById('sendIcon');
+            if (sendIcon) {
+                sendIcon.innerHTML = '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="60" stroke-dashoffset="45"></circle>';
+                sendIcon.classList.add('spinner');
+            }
+            // Disable inputs while waiting for response
+            disableInputs();
+        }
+
+        // Hide spinner and restore send icon
+        function hideSpinner() {
+            const sendIcon = document.getElementById('sendIcon');
+            if (sendIcon) {
+                sendIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>';
+                sendIcon.classList.remove('spinner');
+            }
+            // Re-enable inputs after response
+            enableInputs();
+        }
+
         // Send message handler
         function sendMessage() {
+            // Don't send if inputs are disabled (waiting for AI response)
+            if (messageInput.disabled) return;
+            
             const message = messageInput.value.trim();
             
             // Don't send if message is empty and no images
@@ -221,7 +353,8 @@
 
             // Add user message
             if (message || uploadedImages.length > 0) {
-                addMessage(message, 'user', uploadedImages.map(img => img.dataUrl));
+                const userImages = uploadedImages.map(img => img.dataUrl);
+                addMessage(message, 'user', userImages);
                 
                 // Clear input and reset textarea
                 messageInput.value = '';
@@ -230,10 +363,14 @@
                 updateImagePreview();
                 fileInput.value = '';
                 
-                // Simulate AI response after a short delay
+                // Show spinner
+                showSpinner();
+                
+                // Simulate AI response after a delay
                 setTimeout(() => {
-                    addMessage("I received your message" + (message ? `: "${message}"` : '') + (uploadedImages.length > 0 ? ' with images' : '') + ". How can I assist you further?", 'ai');
-                }, 1000);
+                    hideSpinner();
+                    addMessage("I received your message" + (message ? `: "${message}"` : '') + (userImages.length > 0 ? ' with images' : '') + ". How can I assist you further?", 'ai');
+                }, 2000);
             }
             
             // Scroll to bottom
@@ -282,12 +419,7 @@
                 bubbleContent.appendChild(imagesContainer);
             }
             
-            const timestamp = document.createElement('p');
-            timestamp.className = `text-xs text-gray-500 dark:text-gray-400 mt-1 ${sender === 'user' ? 'mr-2' : 'ml-2'}`;
-            timestamp.textContent = 'Just now';
-            
             messageBubble.appendChild(bubbleContent);
-            messageBubble.appendChild(timestamp);
             
             // Only add avatar for AI messages
             if (sender === 'ai') {
