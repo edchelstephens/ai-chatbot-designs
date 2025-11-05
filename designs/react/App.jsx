@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './styles.css';
+// React is loaded via CDN, so it's available globally
+const { useState, useEffect, useRef } = React;
 
 function App() {
     const [messages, setMessages] = useState([
@@ -103,7 +103,7 @@ function App() {
 
         if (message || uploadedImages.length > 0) {
             const userImages = uploadedImages.map(img => img.dataUrl);
-            
+
             // Add user message
             const newMessage = {
                 id: Date.now(),
@@ -128,10 +128,10 @@ function App() {
             setTimeout(() => {
                 const aiResponse = {
                     id: Date.now() + 1,
-                    text: "I received your message" + 
-                          (message ? `: "${message}"` : '') + 
-                          (userImages.length > 0 ? ' with images' : '') + 
-                          ". How can I assist you further?",
+                    text: "I received your message" +
+                        (message ? `: "${message}"` : '') +
+                        (userImages.length > 0 ? ' with images' : '') +
+                        ". How can I assist you further?",
                     sender: 'ai',
                     images: []
                 };
@@ -164,7 +164,7 @@ function App() {
                         </div>
                     </div>
                     {/* Dark mode toggle button */}
-                    <button 
+                    <button
                         onClick={toggleDarkMode}
                         className="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
                         aria-label="Toggle dark mode"
@@ -183,15 +183,15 @@ function App() {
             </header>
 
             {/* Chat messages area */}
-            <div 
+            <div
                 ref={chatContainerRef}
                 className="flex-1 overflow-y-auto chat-container chat-scrollbar px-4 py-6 sm:px-6 space-y-4"
             >
                 {messages.map((message) => (
-                    <div 
+                    <div
                         key={message.id}
-                        className={message.sender === 'user' 
-                            ? 'flex items-start justify-end' 
+                        className={message.sender === 'user'
+                            ? 'flex items-start justify-end'
                             : 'flex items-start space-x-3'}
                     >
                         {message.sender === 'ai' && (
@@ -200,8 +200,8 @@ function App() {
                             </div>
                         )}
                         <div className={`flex-1 ${message.sender === 'user' ? 'flex flex-col items-end' : ''}`}>
-                            <div className={`${message.sender === 'user' 
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl rounded-tr-sm' 
+                            <div className={`${message.sender === 'user'
+                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl rounded-tr-sm'
                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-sm'} px-4 py-3 sm:px-5 sm:py-4 shadow-sm max-w-[85%] sm:max-w-md`}>
                                 {message.text && (
                                     <p className="text-sm sm:text-base whitespace-pre-wrap break-words">
@@ -212,9 +212,9 @@ function App() {
                                     <div className={`mt-2 flex flex-wrap gap-2 ${message.sender === 'user' ? 'justify-end' : ''}`}>
                                         {message.images.map((imgSrc, idx) => (
                                             <div key={idx} className="relative">
-                                                <img 
-                                                    src={imgSrc} 
-                                                    alt="Uploaded image" 
+                                                <img
+                                                    src={imgSrc}
+                                                    alt="Uploaded image"
                                                     className="max-w-[150px] sm:max-w-[200px] h-auto rounded-lg border-2 border-white/20"
                                                 />
                                             </div>
@@ -251,12 +251,12 @@ function App() {
                         <div className="flex space-x-2 flex-1 overflow-x-auto">
                             {uploadedImages.map((img, index) => (
                                 <div key={index} className="relative flex-shrink-0">
-                                    <img 
-                                        src={img.dataUrl} 
-                                        alt="Preview" 
+                                    <img
+                                        src={img.dataUrl}
+                                        alt="Preview"
                                         className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border-2 border-gray-300 dark:border-gray-600"
                                     />
-                                    <button 
+                                    <button
                                         onClick={() => removeImage(index)}
                                         className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs focus:outline-none focus:ring-2 focus:ring-red-500"
                                     >
@@ -265,7 +265,7 @@ function App() {
                                 </div>
                             ))}
                         </div>
-                        <button 
+                        <button
                             onClick={clearPreview}
                             className="text-xs text-red-500 hover:text-red-600 dark:hover:text-red-400 font-medium px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
                         >
@@ -279,16 +279,16 @@ function App() {
             <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pb-safe">
                 <div className="px-4 py-3 sm:px-6 sm:py-4">
                     <div className="flex items-start space-x-2 sm:space-x-3">
-                        <input 
-                            type="file" 
+                        <input
+                            type="file"
                             ref={fileInputRef}
-                            accept="image/*" 
-                            multiple 
+                            accept="image/*"
+                            multiple
                             onChange={handleFileChange}
                             className="hidden"
                         />
                         <div className="flex-1 relative">
-                            <textarea 
+                            <textarea
                                 ref={textareaRef}
                                 value={messageInput}
                                 onChange={(e) => setMessageInput(e.target.value)}
@@ -296,30 +296,27 @@ function App() {
                                 rows="1"
                                 placeholder="Type your message..."
                                 disabled={isInputDisabled}
-                                className={`w-full px-4 pt-2.5 pb-2.5 sm:px-5 sm:pt-3 sm:pb-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all ${
-                                    isInputDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
+                                className={`w-full px-4 pt-2.5 pb-2.5 sm:px-5 sm:pt-3 sm:pb-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all ${isInputDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                                    }`}
                                 style={{ maxHeight: '120px', overflowY: 'auto' }}
                             />
                         </div>
-                        <button 
+                        <button
                             onClick={handleUploadClick}
                             disabled={isInputDisabled}
-                            className={`flex-shrink-0 pt-2.5 pb-2.5 px-2.5 sm:pt-3 sm:pb-3 sm:px-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
-                                isInputDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
+                            className={`flex-shrink-0 pt-2.5 pb-2.5 px-2.5 sm:pt-3 sm:pb-3 sm:px-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${isInputDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                             aria-label="Upload image"
                         >
                             <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
                         </button>
-                        <button 
+                        <button
                             onClick={sendMessage}
                             disabled={isInputDisabled}
-                            className={`flex-shrink-0 pt-2.5 pb-2.5 px-2.5 sm:pt-3 sm:pb-3 sm:px-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-md hover:shadow-lg active:scale-95 ${
-                                isInputDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
+                            className={`flex-shrink-0 pt-2.5 pb-2.5 px-2.5 sm:pt-3 sm:pb-3 sm:px-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-md hover:shadow-lg active:scale-95 ${isInputDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                             aria-label="Send message"
                         >
                             {isLoading ? (
