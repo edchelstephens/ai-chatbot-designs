@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sherlock AI</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel Standalone for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Load index.jsx entry point
+        fetch('index.jsx')
+            .then(response => response.text())
+            .then(jsxCode => {
+                // Transform JSX to JavaScript using Babel
+                const transformedCode = Babel.transform(jsxCode, {
+                    presets: ['react']
+                }).code;
+                
+                // Execute the transformed code
+                eval(transformedCode);
+            })
+            .catch(error => {
+                console.error('Error loading index.jsx:', error);
+                const rootElement = document.getElementById('root');
+                if (rootElement) {
+                    rootElement.innerHTML = '<div class="p-4 text-red-500">Error loading application. Please check the console.</div>';
+                }
+            });
+    </script>
+</body>
+</html>
+
