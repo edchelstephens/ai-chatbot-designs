@@ -96,3 +96,15 @@ body {
 .spinner {
   animation: spin 1s linear infinite;
 }
+
+/* Hide scrollbar for chat textarea */
+.chat-textarea::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.chat-textarea {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}

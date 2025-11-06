@@ -48,7 +48,7 @@ export default function ChatInput({
                             rows={1}
                             placeholder="Type your message..."
                             disabled={isInputDisabled}
-                            className={`w-full px-4 pt-2.5 pb-2.5 sm:px-5 sm:pt-3 sm:pb-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all ${isInputDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                            className={`w-full px-4 pt-2.5 pb-2.5 sm:px-5 sm:pt-3 sm:pb-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all chat-textarea ${isInputDisabled ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                             style={{ maxHeight: '120px', overflowY: 'auto' }}
                         />
