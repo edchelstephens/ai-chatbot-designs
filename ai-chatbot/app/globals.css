@@ -195,3 +195,45 @@ body {
     opacity: 1;
   }
 }
+
+/* Thinking gradient animation */
+.thinking-gradient {
+  background: linear-gradient(90deg,
+      rgb(107 114 128) 0%,
+      rgb(59 130 246) 25%,
+      rgb(147 51 234) 50%,
+      rgb(59 130 246) 75%,
+      rgb(107 114 128) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 2s ease-in-out infinite;
+}
+
+.dark .thinking-gradient {
+  background: linear-gradient(90deg,
+      rgb(156 163 175) 0%,
+      rgb(96 165 250) 25%,
+      rgb(168 85 247) 50%,
+      rgb(96 165 250) 75%,
+      rgb(156 163 175) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
