@@ -208,7 +208,7 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradient-shift 2s ease-in-out infinite;
+  animation: gradient-shift 1.5s linear infinite;
 }
 
 .dark .thinking-gradient {
@@ -226,14 +226,10 @@ body {
 
 @keyframes gradient-shift {
   0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
+    background-position: -100% 50%;
   }
 
   100% {
-    background-position: 0% 50%;
+    background-position: 200% 50%;
   }
 }
