@@ -97,6 +97,23 @@ body {
   animation: spin 1s linear infinite;
 }
 
+/* Bounce animation for thinking text characters - each character bounces once */
+@keyframes bounce-char-single {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.thinking-char {
+  display: inline-block;
+}
+
 /* Hide scrollbar for chat textarea */
 .chat-textarea::-webkit-scrollbar {
   display: none !important;

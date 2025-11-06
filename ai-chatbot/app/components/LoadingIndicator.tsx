@@ -8,11 +8,9 @@ export default function LoadingIndicator() {
             </div>
             <div className="flex-1">
                 <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-sm px-4 py-3 sm:px-5 sm:py-4 shadow-sm max-w-[85%] sm:max-w-md">
-                    <div className="flex items-center space-x-1.5">
-                        <div className="typing-dot w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full"></div>
-                        <div className="typing-dot w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full"></div>
-                        <div className="typing-dot w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full"></div>
-                    </div>
+                    <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200">
+                        Thinking...
+                    </p>
                 </div>
             </div>
         </div>
