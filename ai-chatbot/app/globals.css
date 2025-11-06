@@ -169,3 +169,29 @@ body {
     opacity: 1;
   }
 }
+
+/* Thinking word character bubble animation */
+.thinking-word {
+  display: inline-flex;
+  align-items: center;
+}
+
+.thinking-char-bubble {
+  display: inline-block;
+  animation: bubble-char 1.4s ease-in-out infinite;
+}
+
+@keyframes bubble-char {
+
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
