@@ -30,16 +30,8 @@ export default function Home() {
   ]);
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [messageInput, setMessageInput] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('darkMode');
-      if (saved !== null) {
-        return saved === 'true';
-      }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
@@ -48,13 +40,16 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Initialize dark mode on mount
+  // Initialize dark mode after mount to avoid hydration mismatch
   useEffect(() => {
+    setMounted(true);
     // Set initial dark mode from localStorage or system preference
     const saved = localStorage.getItem('darkMode');
     const initialDarkMode = saved !== null
       ? saved === 'true'
       : window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    setIsDarkMode(initialDarkMode);
 
     if (initialDarkMode) {
       document.documentElement.classList.add('dark');
@@ -85,6 +80,20 @@ export default function Home() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Focus textarea on mount and after AI response
+  useEffect(() => {
+    if (textareaRef.current && !isLoading) {
+      textareaRef.current.focus();
+    }
+  }, [isLoading]);
+
+  // Focus textarea on initial mount
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, []);
 
   // Business logic functions
   const scrollToBottom = () => {
