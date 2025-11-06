@@ -48,7 +48,22 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Initialize dark mode
+  // Initialize dark mode on mount
+  useEffect(() => {
+    // Set initial dark mode from localStorage or system preference
+    const saved = localStorage.getItem('darkMode');
+    const initialDarkMode = saved !== null
+      ? saved === 'true'
+      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (initialDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  // Update dark mode when state changes
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
