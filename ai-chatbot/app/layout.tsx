@@ -16,6 +16,30 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Sherlock AI - AI Chatbot",
   description: "Ask anything with Sherlock AI assistant",
+  manifest: "/manifest.json",
+  themeColor: "#2563eb",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Sherlock AI",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/images/android/android-launchericon-192-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/images/android/android-launchericon-512-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/images/ios/180.png", sizes: "180x180", type: "image/png" },
+      { url: "/images/ios/152.png", sizes: "152x152", type: "image/png" },
+      { url: "/images/ios/120.png", sizes: "120x120", type: "image/png" },
+    ],
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 
 export default function RootLayout({
